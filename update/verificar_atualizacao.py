@@ -16,15 +16,18 @@ BASE_DIR = os.path.dirname(
 
 
 # =========================================================
-# SERVIDOR DE TESTE LOCAL
+# CONFIGURAÇÃO DO GITHUB
 # =========================================================
 
-URL_VERSAO = (
-    "http://127.0.0.1:8000/version.json"
-)
+GITHUB_USUARIO = "IgasDEV001"
 
-URL_DOWNLOAD = (
-    "http://127.0.0.1:8000/CJARVIS.zip"
+GITHUB_REPOSITORIO = "CJARVIS"
+
+
+URL_RELEASES = (
+    f"https://api.github.com/repos/"
+    f"{GITHUB_USUARIO}/"
+    f"{GITHUB_REPOSITORIO}/releases/latest"
 )
 
 
@@ -48,6 +51,25 @@ def obter_versao_atual():
 
 
 # =========================================================
+# NORMALIZAR VERSÃO
+# =========================================================
+
+def normalizar_versao(
+    versao
+):
+
+    versao = str(
+        versao
+    ).strip()
+
+    if versao.startswith("v"):
+
+        versao = versao[1:]
+
+    return versao
+
+
+# =========================================================
 # COMPARAR VERSÕES
 # =========================================================
 
@@ -58,18 +80,26 @@ def comparar_versoes(
 
     try:
 
+        atual = normalizar_versao(
+            atual
+        )
+
+        nova = normalizar_versao(
+            nova
+        )
+
         atual = tuple(
             int(
                 parte
             )
-            for parte in str(atual).split(".")
+            for parte in atual.split(".")
         )
 
         nova = tuple(
             int(
                 parte
             )
-            for parte in str(nova).split(".")
+            for parte in nova.split(".")
         )
 
         return nova > atual
@@ -91,40 +121,90 @@ def verificar_atualizacao():
     try:
 
         resposta = requests.get(
-            URL_VERSAO,
-            timeout=10
+            URL_RELEASES,
+            timeout=10,
+            headers={
+                "Accept": (
+                    "application/vnd.github+json"
+                )
+            }
         )
 
         resposta.raise_for_status()
 
         dados = resposta.json()
 
-        nova_versao = str(
-            dados.get(
-                "versao",
-                ""
-            )
-        ).strip()
-
         versao_atual = (
             obter_versao_atual()
         )
 
-        # -------------------------------------------------
-        # SERVIDOR NÃO INFORMOU VERSÃO
-        # -------------------------------------------------
+        tag = str(
+            dados.get(
+                "tag_name",
+                ""
+            )
+        ).strip()
+
+        nova_versao = normalizar_versao(
+            tag
+        )
+
+        nome_release = dados.get(
+            "name",
+            ""
+        )
+
+        notas = dados.get(
+            "body",
+            ""
+        )
+
+        assets = dados.get(
+            "assets",
+            []
+        )
+
+        download_url = None
+
+        # =================================================
+        # PROCURAR CJARVIS.ZIP
+        # =================================================
+
+        for asset in assets:
+
+            nome = str(
+                asset.get(
+                    "name",
+                    ""
+                )
+            ).lower()
+
+            if nome == "cjarvis.zip":
+
+                download_url = asset.get(
+                    "browser_download_url"
+                )
+
+                break
+
+        # =================================================
+        # SEM NOVA VERSÃO
+        # =================================================
 
         if not nova_versao:
 
             return {
                 "atualizacao": False,
                 "versao_atual": versao_atual,
-                "erro": "Versão não informada pelo servidor."
+                "erro": (
+                    "A Release não possui "
+                    "uma tag válida."
+                )
             }
 
-        # -------------------------------------------------
-        # NOVA VERSÃO DISPONÍVEL
-        # -------------------------------------------------
+        # =================================================
+        # NOVA VERSÃO
+        # =================================================
 
         if comparar_versoes(
             versao_atual,
@@ -135,33 +215,23 @@ def verificar_atualizacao():
                 "atualizacao": True,
                 "versao_atual": versao_atual,
                 "nova_versao": nova_versao,
-                "download": dados.get(
-                    "download",
-                    URL_DOWNLOAD
-                ),
-                "notas": dados.get(
-                    "notas",
-                    ""
-                )
+                "nome_release": nome_release,
+                "download": download_url,
+                "notas": notas
             }
 
-        # -------------------------------------------------
-        # JÁ ESTÁ ATUALIZADO
-        # -------------------------------------------------
+        # =================================================
+        # ATUALIZADO
+        # =================================================
 
         return {
             "atualizacao": False,
             "versao_atual": versao_atual,
             "nova_versao": nova_versao,
-            "notas": dados.get(
-                "notas",
-                ""
-            )
+            "nome_release": nome_release,
+            "download": download_url,
+            "notas": notas
         }
-
-    # =====================================================
-    # ERRO DE INTERNET / SERVIDOR
-    # =====================================================
 
     except requests.exceptions.RequestException as erro:
 
@@ -170,13 +240,10 @@ def verificar_atualizacao():
             "versao_atual": obter_versao_atual(),
             "erro": (
                 "Não foi possível consultar "
-                f"o servidor de atualização: {erro}"
+                "o GitHub: "
+                f"{erro}"
             )
         }
-
-    # =====================================================
-    # ERRO GERAL
-    # =====================================================
 
     except Exception as erro:
 
@@ -197,24 +264,32 @@ def iniciar_updater(
     download_url
 ):
 
+    if not download_url:
+
+        print(
+            "ERRO: URL do ZIP não encontrada."
+        )
+
+        return False
+
     updater = os.path.join(
         BASE_DIR,
         "update",
         "updater.py"
     )
 
-    try:
+    if not os.path.exists(
+        updater
+    ):
 
-        if not os.path.exists(
+        print(
+            "ERRO: updater.py não encontrado:",
             updater
-        ):
+        )
 
-            print(
-                "UPDATER NÃO ENCONTRADO:",
-                updater
-            )
+        return False
 
-            return False
+    try:
 
         subprocess.Popen(
             [
@@ -253,9 +328,9 @@ if __name__ == "__main__":
     )
 
     print()
-    print("=" * 55)
+    print("=" * 60)
     print(" JARVIS UPDATE CHECK")
-    print("=" * 55)
+    print("=" * 60)
 
     print(
         "Versão atual:",
@@ -281,22 +356,28 @@ if __name__ == "__main__":
         )
     )
 
-    if resultado.get(
-        "notas"
-    ):
+    print(
+        "Download:",
+        resultado.get(
+            "download",
+            "--"
+        )
+    )
 
+    if resultado.get("notas"):
+
+        print()
+        print("Notas:")
         print(
-            "Notas:",
             resultado["notas"]
         )
 
-    if resultado.get(
-        "erro"
-    ):
+    if resultado.get("erro"):
 
+        print()
         print(
             "Erro:",
             resultado["erro"]
         )
 
-    print("=" * 55)
+    print("=" * 60)
