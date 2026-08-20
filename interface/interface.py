@@ -890,29 +890,93 @@ class JanelaPrincipal(QMainWindow):
             "JARVIS Dark"
         )
 
-        if tema == "JARVIS Deep":
+        paletas = {
+            "JARVIS Dark": {
+                "fundo_1": "#03060b", "fundo_2": "#081622",
+                "menu_1": "#080d15", "menu_2": "#09111b",
+                "painel": "#0d1723", "painel_2": "#0a1b2a",
+                "card": "#0e1824", "campo": "#080f17",
+                "botao": "#17283a", "borda": "#1a2d3e"
+            },
+            "JARVIS Deep": {
+                "fundo_1": "#02040a", "fundo_2": "#040b14",
+                "menu_1": "#050910", "menu_2": "#060d16",
+                "painel": "#080e16", "painel_2": "#07131d",
+                "card": "#0a111a", "campo": "#050a10",
+                "botao": "#111d2a", "borda": "#172738"
+            },
+            "JARVIS Minimal": {
+                "fundo_1": "#071018", "fundo_2": "#0a131d",
+                "menu_1": "#071019", "menu_2": "#09141e",
+                "painel": "#101a24", "painel_2": "#0d1b25",
+                "card": "#121e29", "campo": "#0b141d",
+                "botao": "#1a2a39", "borda": "#253949"
+            },
+            "JARVIS Blue": {
+                "fundo_1": "#03101f", "fundo_2": "#062744",
+                "menu_1": "#04172b", "menu_2": "#06213a",
+                "painel": "#0a2945", "painel_2": "#0b3557",
+                "card": "#0d3150", "campo": "#061c31",
+                "botao": "#12466d", "borda": "#1d5d89"
+            },
+            "JARVIS Purple": {
+                "fundo_1": "#0b0618", "fundo_2": "#241044",
+                "menu_1": "#100821", "menu_2": "#1b0d35",
+                "painel": "#251444", "painel_2": "#311a55",
+                "card": "#2b174b", "campo": "#150b27",
+                "botao": "#48226d", "borda": "#673694"
+            },
+            "JARVIS Green": {
+                "fundo_1": "#03120b", "fundo_2": "#073522",
+                "menu_1": "#041b11", "menu_2": "#06291a",
+                "painel": "#0a3823", "painel_2": "#0d472c",
+                "card": "#0c4027", "campo": "#062319",
+                "botao": "#155c39", "borda": "#20754a"
+            },
+            "JARVIS Red": {
+                "fundo_1": "#170405", "fundo_2": "#3b0b0f",
+                "menu_1": "#200609", "menu_2": "#31090d",
+                "painel": "#421014", "painel_2": "#51151a",
+                "card": "#491217", "campo": "#26080b",
+                "botao": "#681c23", "borda": "#8a2a32"
+            },
+            "JARVIS Orange": {
+                "fundo_1": "#180b02", "fundo_2": "#3b1d05",
+                "menu_1": "#211003", "menu_2": "#311604",
+                "painel": "#442207", "painel_2": "#542b09",
+                "card": "#4b2608", "campo": "#291404",
+                "botao": "#69370b", "borda": "#8a4b12"
+            },
+            "JARVIS Pink": {
+                "fundo_1": "#180511", "fundo_2": "#3b0d2b",
+                "menu_1": "#220816", "menu_2": "#310b21",
+                "painel": "#45112f", "painel_2": "#55153a",
+                "card": "#4d1235", "campo": "#280917",
+                "botao": "#6d1b4d", "borda": "#8d2b67"
+            },
+            "JARVIS Cyan": {
+                "fundo_1": "#021417", "fundo_2": "#06363b",
+                "menu_1": "#031c20", "menu_2": "#052a30",
+                "painel": "#0a3b40", "painel_2": "#0d4b50",
+                "card": "#0c4449", "campo": "#05262a",
+                "botao": "#11636a", "borda": "#1c7c84"
+            },
+            "JARVIS White": {
+                "fundo_1": "#f4f6f8", "fundo_2": "#ffffff",
+                "menu_1": "#e8edf2", "menu_2": "#f7f9fb",
+                "painel": "#ffffff", "painel_2": "#f3f6f8",
+                "card": "#ffffff", "campo": "#eef2f5",
+                "botao": "#dce3e9", "borda": "#c7d0d8"
+            }
+        }
 
-            fundo_1 = "#02040a"
-            fundo_2 = "#040b14"
-            menu_1 = "#050910"
-            menu_2 = "#060d16"
+        paleta = paletas.get(tema, paletas["JARVIS Dark"])
+        fundo_1 = paleta["fundo_1"]
+        fundo_2 = paleta["fundo_2"]
+        menu_1 = paleta["menu_1"]
+        menu_2 = paleta["menu_2"]
 
-        elif tema == "JARVIS Minimal":
-
-            fundo_1 = "#071018"
-            fundo_2 = "#0a131d"
-            menu_1 = "#071019"
-            menu_2 = "#09141e"
-
-        else:
-
-            fundo_1 = "#03060b"
-            fundo_2 = "#081622"
-            menu_1 = "#080d15"
-            menu_2 = "#09111b"
-
-        self.setStyleSheet(
-            f"""
+        css = f"""
             QMainWindow {{
                 background-color: {fundo_1};
             }}
@@ -1372,7 +1436,238 @@ class JanelaPrincipal(QMainWindow):
                 background-color: #0c1520;
             }}
             """
-        )
+
+        substituicoes = {
+            "#0d1723": paleta["painel"],
+            "#0a1b2a": paleta["painel_2"],
+            "#0e1824": paleta["card"],
+            "#080f17": paleta["campo"],
+            "#0c1621": paleta["campo"],
+            "#17283a": paleta["botao"],
+            "#1a2d3e": paleta["borda"],
+            "#1b2e40": paleta["borda"]
+        }
+
+        for original, novo in substituicoes.items():
+            css = css.replace(original, novo)
+
+        if tema == "JARVIS White":
+            css += f"""
+
+            /* =====================================================
+               JARVIS WHITE
+               ===================================================== */
+
+            QMainWindow {{
+                background-color: #f4f6f8;
+            }}
+
+            QWidget {{
+                color: #17212b;
+            }}
+
+            QWidget#central_principal {{
+                background: qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop: 0 #f4f6f8,
+                    stop: 0.5 #ffffff,
+                    stop: 1 #eef2f5
+                );
+            }}
+
+            QFrame#menu {{
+                background: qlineargradient(
+                    x1: 0, y1: 0, x2: 0, y2: 1,
+                    stop: 0 #e8edf2,
+                    stop: 1 #f7f9fb
+                );
+                border-right: 1px solid #c7d0d8;
+            }}
+
+            #logo_jarvis {{ color: #087ea4; }}
+            #subtitulo_jarvis {{ color: #65727d; }}
+            #divisor_menu {{ color: #c7d0d8; background-color: #c7d0d8; }}
+
+            QPushButton#menu_button {{
+                color: #4f5d68;
+                background-color: transparent;
+            }}
+
+            QPushButton#menu_button:hover {{
+                background-color: #e2e7eb;
+                color: #17212b;
+                border: 1px solid #c7d0d8;
+            }}
+
+            QPushButton#menu_button_active {{
+                background-color: #d8edf3;
+                color: #056783;
+                border: 1px solid #8fbfce;
+                border-left: 3px solid #087ea4;
+            }}
+
+            QFrame#status_box,
+            QFrame#system_bar {{
+                background-color: #f3f6f8;
+                border: 1px solid #c7d0d8;
+            }}
+
+            #status_online,
+            QLabel#system_value_green,
+            #jarvis_status,
+            QLabel#alerta_sucesso,
+            QLabel#projecao_status_normal {{
+                color: #16845b;
+            }}
+
+            #status_info,
+            QLabel#system_label,
+            #subtitulo_pagina,
+            QLabel#economia_label,
+            #jarvis_meta,
+            #titulo_card,
+            #descricao_card,
+            QLabel#projecao_label {{
+                color: #65727d;
+            }}
+
+            QLabel#system_value,
+            #titulo_jarvis,
+            QLabel#economia_valor,
+            QLabel#projecao_titulo,
+            #valor_saldo_card {{
+                color: #087ea4;
+            }}
+
+            #titulo_pagina,
+            #titulo_painel,
+            #mensagem_jarvis,
+            QLabel#economia_texto,
+            QLabel#projecao_valor,
+            #valor_card {{
+                color: #17212b;
+            }}
+
+            QFrame#painel,
+            QFrame#painel_jarvis,
+            QFrame#painel_economia,
+            QFrame#painel_alertas,
+            QFrame#painel_projecao,
+            QFrame#card_financeiro {{
+                background-color: #ffffff;
+                border-color: #c7d0d8;
+            }}
+
+            QFrame#painel_jarvis,
+            QFrame#card_saldo {{
+                background-color: #f3f6f8;
+                border-color: #8fbfce;
+            }}
+
+            QLabel#alerta_normal,
+            QLabel#alerta_atencao,
+            QLabel#alerta_critico,
+            QLabel#alerta_sucesso {{
+                background-color: transparent;
+            }}
+
+            QLabel#alerta_normal {{ color: #25313b; }}
+            QLabel#alerta_atencao {{ color: #a66a00; }}
+            QLabel#alerta_critico {{ color: #c0392b; }}
+            QLabel#alerta_sucesso {{ color: #16845b; }}
+
+            QLabel#projecao_status_atencao {{ color: #a66a00; }}
+            QLabel#projecao_status_critico {{ color: #c0392b; }}
+
+            QLineEdit,
+            QDateEdit,
+            QComboBox {{
+                background-color: #eef2f5;
+                color: #17212b;
+                border: 1px solid #c7d0d8;
+            }}
+
+            QLineEdit:focus,
+            QDateEdit:focus,
+            QComboBox:focus {{
+                border: 1px solid #087ea4;
+            }}
+
+            QComboBox QAbstractItemView {{
+                background-color: #ffffff;
+                color: #17212b;
+                border: 1px solid #c7d0d8;
+                selection-background-color: #d8edf3;
+                selection-color: #17212b;
+            }}
+
+            QTableWidget {{
+                background-color: #ffffff;
+                color: #17212b;
+                border: 1px solid #c7d0d8;
+                gridline-color: #d7dee4;
+                selection-background-color: #d8edf3;
+                selection-color: #17212b;
+                alternate-background-color: #f8fafb;
+            }}
+
+            QHeaderView::section {{
+                background-color: #e8edf2;
+                color: #4f5d68;
+                border: none;
+            }}
+
+            QProgressBar {{
+                background-color: #dce3e9;
+                color: #17212b;
+            }}
+
+            QProgressBar::chunk {{
+                background-color: #087ea4;
+            }}
+
+            QScrollBar:vertical {{
+                background-color: #eef2f5;
+            }}
+
+            QScrollBar::handle:vertical {{
+                background-color: #c7d0d8;
+            }}
+
+            QPushButton {{
+                background-color: #dce3e9;
+                color: #17212b;
+                border: 1px solid #c7d0d8;
+            }}
+
+            QPushButton:hover {{
+                background-color: #d8edf3;
+                color: #056783;
+                border: 1px solid #8fbfce;
+            }}
+
+            QPushButton:pressed {{
+                background-color: #cfd8de;
+            }}
+
+            QPushButton:disabled {{
+                color: #8a969f;
+                background-color: #eef2f5;
+                border: 1px solid #d7dee4;
+            }}
+
+            QDialog,
+            QMessageBox {{
+                background-color: #ffffff;
+                color: #17212b;
+            }}
+
+            QMessageBox QLabel {{
+                color: #17212b;
+            }}
+            """
+
+        self.setStyleSheet(css)
 
     # =========================================================
     # SYSTEM BAR
@@ -6705,7 +7000,15 @@ Quantidade de metas:
         self.combo_tema.addItems([
             "JARVIS Dark",
             "JARVIS Deep",
-            "JARVIS Minimal"
+            "JARVIS Minimal",
+            "JARVIS Blue",
+            "JARVIS Purple",
+            "JARVIS Green",
+            "JARVIS Red",
+            "JARVIS Orange",
+            "JARVIS Pink",
+            "JARVIS Cyan",
+            "JARVIS White"
         ])
 
         self.combo_tema.setFixedWidth(

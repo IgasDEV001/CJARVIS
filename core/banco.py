@@ -1,12 +1,39 @@
 import sqlite3
+import os
 
 
 class BancoDados:
 
     def __init__(self):
 
-        self.conexao = sqlite3.connect(
+        # =====================================================
+        # CONFIGURAR PASTA DO BANCO DE DADOS
+        # =====================================================
+
+        # O banco será salvo na pasta AppData do usuário.
+        # Isso evita problemas de permissão quando o CJARVIS
+        # estiver instalado em uma pasta protegida do Windows.
+
+        pasta_dados = os.path.join(
+            os.environ["APPDATA"],
+            "CJARVIS"
+        )
+
+        # Criar a pasta automaticamente caso ela não exista
+        os.makedirs(
+            pasta_dados,
+            exist_ok=True
+        )
+
+        # Caminho completo do banco de dados
+        caminho_banco = os.path.join(
+            pasta_dados,
             "jarvis.db"
+        )
+
+        # Conectar ao banco
+        self.conexao = sqlite3.connect(
+            caminho_banco
         )
 
         self.criar_tabelas()
